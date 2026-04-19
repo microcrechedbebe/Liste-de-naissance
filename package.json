@@ -1,0 +1,15 @@
+{
+  "name": "liste-naissance-sofiane-katia",
+  "version": "1.0.0",
+  "description": "Liste de naissance personnalisée — Sofiane & Katia",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^37.0.0"
+  }
+}

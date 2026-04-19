@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "routes": [
+    { "src": "/api/reservations", "dest": "/api/reservations.js" },
+    { "src": "/api/reset", "dest": "/api/reset.js" },
+    { "handle": "filesystem" }
+  ]
+}
