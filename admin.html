@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Liste de Naissance</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+  <div class="login-screen" id="login-screen">
+    <div class="login-card"><div class="login-logo">🍼</div><h1>Espace Admin</h1><p>Liste de naissance — Sofiane & Katia</p>
+      <form id="login-form"><input type="password" id="password-input" placeholder="Mot de passe" required autofocus><button type="submit" class="btn-primary">Accéder</button><p class="login-error" id="login-error"></p></form>
+    </div>
+  </div>
+  <div class="admin-app" id="admin-app" style="display:none">
+    <header class="admin-header">
+      <div class="admin-header-left"><span class="admin-logo">🍼</span><div><h1>Liste de Naissance</h1><p>Sofiane & Katia — Admin</p></div></div>
+      <div class="admin-header-right"><a href="/" target="_blank" class="btn-outline">Voir la liste ↗</a><button class="btn-ghost" onclick="logout()">Déconnexion</button></div>
+    </header>
+    <main class="admin-main">
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card"><span class="stat-number" id="stat-total">0</span><span class="stat-label">Cadeaux</span></div>
+        <div class="stat-card"><span class="stat-number" id="stat-reserved">0</span><span class="stat-label">Réservés</span></div>
+        <div class="stat-card"><span class="stat-number" id="stat-amount">0€</span><span class="stat-label">Collectés</span></div>
+        <div class="stat-card"><span class="stat-number" id="stat-pct">0%</span><span class="stat-label">Complété</span></div>
+      </div>
+      <div class="admin-card" id="add-card">
+        <div class="admin-card-header"><h2>➕ Ajouter un cadeau</h2></div>
+        <div class="admin-card-body">
+          <div class="add-step" id="step-url">
+            <label class="field-label">URL du produit</label>
+            <div class="url-input-row"><input type="url" id="product-url" placeholder="https://www.amazon.fr/dp/..."><button class="btn-fetch" id="btn-fetch" onclick="fetchProduct()"><span id="fetch-label">Récupérer</span><span id="fetch-spinner" class="spinner-sm" style="display:none"></span></button></div>
+            <p class="field-hint">Amazon, Vertbaudet, IKEA, Kinderkraft…</p>
+          </div>
+          <div class="add-step" id="step-form" style="display:none">
+            <div class="product-preview" id="product-preview"></div>
+            <div class="form-grid">
+              <div class="form-group full"><label>Nom du produit *</label><input type="text" id="gift-name" required></div>
+              <div class="form-group"><label>Prix (€)</label><input type="number" id="gift-price" step="0.01" min="0" placeholder="0.00"></div>
+              <div class="form-group"><label>Catégorie *</label><select id="gift-category" required><option value="">Choisir…</option><option value="sommeil">🌙 Sommeil</option><option value="alimentation">🍼 Alimentation</option><option value="bain">🛁 Bain & Soins</option><option value="sorties">🚗 Sorties & Transport</option><option value="vetements">👶 Vêtements</option><option value="jeux">🎨 Jeux & Éveil</option><option value="chambre">🏠 Chambre & Déco</option><option value="autre">🎁 Autre</option></select></div>
+              <div class="form-group full"><label>Note (optionnel)</label><input type="text" id="gift-note" placeholder="Ex: Taille 3 mois"></div>
+              <div class="form-group full"><label>Image URL</label><input type="url" id="gift-image" placeholder="https://…"></div>
+            </div>
+            <div class="form-actions"><button class="btn-ghost" onclick="resetForm()">Annuler</button><button class="btn-primary" onclick="saveGift()">Ajouter à la liste ✓</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-header"><h2>🎁 Cadeaux (<span id="gifts-count">0</span>)</h2><div class="admin-filter"><select id="admin-cat-filter" onchange="renderAdminGifts()"><option value="all">Toutes catégories</option><option value="sommeil">🌙 Sommeil</option><option value="alimentation">🍼 Alimentation</option><option value="bain">🛁 Bain & Soins</option><option value="sorties">🚗 Sorties & Transport</option><option value="vetements">👶 Vêtements</option><option value="jeux">🎨 Jeux & Éveil</option><option value="chambre">🏠 Chambre & Déco</option><option value="autre">🎁 Autre</option></select></div></div>
+        <div class="admin-card-body"><div class="admin-gifts-list" id="admin-gifts-list"><div class="loading-state"><div class="spinner"></div><p>Chargement…</p></div></div></div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-header"><h2>📋 Réservations (<span id="res-count">0</span>)</h2></div>
+        <div class="admin-card-body"><div class="reservations-list" id="reservations-list"><div class="loading-state"><div class="spinner"></div><p>Chargement…</p></div></div></div>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
