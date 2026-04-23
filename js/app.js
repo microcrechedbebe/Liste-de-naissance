@@ -47,23 +47,40 @@ function renderGifts(){
     const reserved=allReservations[g.id];
     const imgSrc=esc(g.image||g.imageUrl||'');
     const name=esc(g.name||g.title||'Cadeau');
-    const price=g.price?`${esc(String(g.price))} €`:'';
+    const price=g.price?`${Number(g.price).toLocaleString('fr-FR')} €`:'';
     const cat=esc(g.category||'');
+    const link=g.url||g.link||'';
     return `<article class="gift-card${reserved?' reserved':''}" data-id="${esc(String(g.id))}">
-      <div class="gift-img-wrap">${imgSrc?`<img src="${imgSrc}" alt="${name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\"gift-emoji-fallback\\">🎁</div>'">`:'<div class="gift-emoji-fallback">🎁</div>'}</div>
+      ${reserved?`<div class="gift-reserved-ribbon">✅ Réservé par ${esc(reserved.name)}</div>`:''}
+      <div class="gift-img-wrap">
+        ${imgSrc
+          ?`<img src="${imgSrc}" alt="${name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\"gift-emoji-fallback\">🎁</div>'">`
+          :'<div class="gift-emoji-fallback">🎁</div>'}
+      </div>
       <div class="gift-body">
-        <div class="gift-category">${cat}</div>
-        <h3 class="gift-name">${name}</h3>
-        ${price?`<div class="gift-price">${price}</div>`:''}
-        <button class="gift-btn" ${reserved?'disabled':''} data-id="${esc(String(g.id))}">${reserved?'✅ Réservé':'🎁 Réserver'}</button>
+        <div class="gift-body-top">
+          ${cat?`<div class="gift-category">${cat}</div>`:''}
+          <h3 class="gift-name">${name}</h3>
+          ${price?`<div class="gift-price">${price}</div>`:''}
+        </div>
+        <div class="gift-body-bottom">
+          ${link?`<a class="gift-link-btn" href="${esc(link)}" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Voir le produit
+          </a>`:''}
+          ${reserved
+            ?`<span class="gift-reserved-info">🎁 Déjà réservé</span>`
+            :`<button class="gift-btn" data-id="${esc(String(g.id))}">Réserver 🎁</button>`}
+        </div>
       </div>
     </article>`;
   }).join('');
-  grid.querySelectorAll('.gift-btn:not([disabled])').forEach(btn=>{
+  grid.querySelectorAll('.gift-btn').forEach(btn=>{
     btn.addEventListener('click',(e)=>{e.stopPropagation();openModal(btn.dataset.id)});
   });
-  if(window.gsap)gsap.fromTo('.gift-card',{opacity:0,y:30},{opacity:1,y:0,duration:.5,stagger:.06,ease:'power2.out'});
+  if(window.gsap)gsap.fromTo('.gift-card',{opacity:0,y:20},{opacity:1,y:0,duration:.4,stagger:.05,ease:'power2.out'});
 }
+
 function initFilters(){
   $$('.filter-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
