@@ -1,6 +1,6 @@
 {
   "name": "liste-naissance-sofiane-katia",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Liste de naissance personnalisée — Sofiane & Katia",
   "scripts": {
     "dev": "vercel dev",
