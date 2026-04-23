@@ -48,26 +48,34 @@ body{font-family:'Quicksand',sans-serif;background:var(--cream);color:var(--dark
 .filter-btn{padding:10px 20px;border:2px solid rgba(0,0,0,.1);background:var(--white);border-radius:50px;font-family:'Quicksand',sans-serif;font-size:.9rem;font-weight:600;color:var(--mid);cursor:pointer;transition:var(--transition)}
 .filter-btn:hover{border-color:var(--sage);color:var(--sage-dark);background:rgba(122,158,126,.06)}
 .filter-btn.active{background:var(--sage);border-color:var(--sage);color:var(--white);box-shadow:0 4px 16px rgba(122,158,126,.3)}
-
-
-
-
-
-
-
-.gift-card:hover 
-
-
-
-
-
-
-
-
-.loading-state{grid-column:1/-1;text-align:center;padding:80px 0;color:var(--mid)}
+.gifts-grid{display:flex;flex-direction:column;gap:20px}
+.gift-card{background:var(--white);border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07);transition:var(--transition);border:1px solid rgba(0,0,0,.05);display:grid;grid-template-columns:280px 1fr;min-height:210px;position:relative}
+.gift-card:hover{transform:translateY(-4px);box-shadow:0 20px 56px rgba(0,0,0,.13)}
+.gift-card.reserved{opacity:.82}
+.gift-reserved-ribbon{position:absolute;top:14px;left:14px;background:var(--sage);color:var(--white);font-size:.72rem;font-weight:700;padding:5px 14px;border-radius:50px;z-index:2;letter-spacing:.5px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.gift-img-wrap{width:280px;height:100%;min-height:210px;overflow:hidden;background:#f0ebe4;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gift-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.gift-card:hover .gift-img-wrap img{transform:scale(1.06)}
+.gift-emoji-fallback{font-size:4rem;opacity:.25}
+.gift-body{padding:28px 32px;display:flex;flex-direction:column;justify-content:space-between;gap:16px}
+.gift-body-top{display:flex;flex-direction:column;gap:8px}
+.gift-category{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:var(--sage)}
+.gift-name{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:600;color:var(--dark);line-height:1.35;margin:0}
+.gift-price{font-size:1.5rem;font-weight:700;color:var(--terracotta);letter-spacing:-.5px}
+.gift-body-bottom{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.gift-link-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:rgba(122,158,126,.08);color:var(--sage-dark);border-radius:50px;font-size:.84rem;font-weight:700;text-decoration:none;transition:var(--transition);border:1.5px solid rgba(122,158,126,.2);white-space:nowrap}
+.gift-link-btn:hover{background:var(--sage);color:var(--white);border-color:var(--sage);transform:translateY(-1px)}
+.gift-link-btn svg{width:13px;height:13px;flex-shrink:0}
+.gift-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,var(--sage),var(--sage-dark));color:var(--white);border:none;border-radius:50px;font-family:'Quicksand',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:var(--transition);box-shadow:0 4px 16px rgba(122,158,126,.25);white-space:nowrap}
+.gift-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(122,158,126,.4)}
+.gift-btn:disabled{background:#d5d5d5;color:#999;cursor:not-allowed;transform:none;box-shadow:none}
+.gift-reserved-info{font-size:.82rem;color:var(--sage-dark);font-weight:600;background:rgba(122,158,126,.08);padding:9px 16px;border-radius:50px;border:1px solid rgba(122,158,126,.18)}
+.loading-state{text-align:center;padding:80px 0;color:var(--mid)}
 .spinner{width:40px;height:40px;border:3px solid rgba(0,0,0,.1);border-top-color:var(--sage);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty-state{grid-column:1/-1;text-align:center;padding:80px 0;color:var(--mid);font-size:1.1rem}
+.empty-state{text-align:center;padding:80px 0;color:var(--mid);font-size:1.1rem}
+@media(max-width:768px){.gift-card{grid-template-columns:1fr;grid-template-rows:220px auto}.gift-img-wrap{width:100%;height:220px;min-height:unset}.gift-body{padding:20px 22px;gap:12px}.gift-name{font-size:1.1rem}.gift-price{font-size:1.25rem}}
+@media(max-width:480px){.gift-body{padding:16px 18px}.gift-body-bottom{gap:8px}.gift-link-btn,.gift-btn{font-size:.8rem;padding:9px 16px}}
 .guestbook-section{background:linear-gradient(135deg,#f0f7f1 0%,#fdf8f3 100%);padding:80px 0}
 .guestbook-form{background:var(--white);border-radius:var(--radius);padding:36px;box-shadow:var(--shadow-md);margin-bottom:40px;max-width:700px;margin-left:auto;margin-right:auto}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
