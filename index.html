@@ -3,68 +3,131 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Liste de naissance de Sofiane & Katia — Bébé arrive le 7 août 2026 !">
-  <meta property="og:title" content="Liste de Naissance — Sofiane & Katia 🍼">
-  <meta property="og:description" content="Notre petit prince arrive !">
-  <title>Liste de Naissance — Sofiane & Katia 🍼</title>
-  <link rel="stylesheet" href="/css/styles.css">
+  <title>Liste de Naissance — Sofiane &amp; Katia 🌿</title>
+  <meta name="description" content="La liste de naissance de Sofiane &amp; Katia — bébé garçon attendu le 7 août 2026 ✨">
+  <meta property="og:title" content="Liste de Naissance — Sofiane &amp; Katia 💙">
+  <meta property="og:description" content="Notre bébé garçon arrive le 7 août 2026 ! Découvrez notre liste de naissance.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=1200&q=80">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Quicksand:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <section class="hero">
-    <div class="hero-float"></div><div class="hero-float"></div><div class="hero-float"></div>
-    <div class="hero-pattern"></div>
+  <section class="hero" id="hero">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-particles" id="particles"></div>
     <div class="hero-content">
-      <div class="hero-badge">💙 Bébé en route</div>
-      <h1>Sofiane <span class="ampersand">&amp;</span> Katia</h1>
-      <p class="subtitle">Attendent leur petit prince</p>
-      <div class="due-date"><span class="due-label">Date prévue</span><span class="due-value">7 août 2026</span></div>
-    </div>
-    <div class="hero-scroll" onclick="document.getElementById('countdown').scrollIntoView({behavior:'smooth'})"><span>Découvrir</span><div class="scroll-arrow"></div></div>
-  </section>
-  <section class="countdown-section" id="countdown">
-    <div class="container"><p class="countdown-label-top">Dans combien de temps ?</p>
+      <div class="hero-badge">ⵣ Bienvenue ⵣ</div>
+      <h1 class="hero-title">
+        <span class="hero-title-line">Sofiane</span>
+        <span class="hero-title-amp">&amp;</span>
+        <span class="hero-title-line">Katia</span>
+      </h1>
+      <p class="hero-subtitle">accueillent leur petit garçon</p>
+      <div class="hero-divider"><span></span><span class="hero-divider-icon">🌿</span><span></span></div>
       <div class="countdown-wrapper">
-        <div class="countdown-item"><span class="countdown-number" id="days">--</span><span class="countdown-unit">jours</span></div>
-        <div class="countdown-sep">:</div>
-        <div class="countdown-item"><span class="countdown-number" id="hours">--</span><span class="countdown-unit">heures</span></div>
-        <div class="countdown-sep">:</div>
-        <div class="countdown-item"><span class="countdown-number" id="minutes">--</span><span class="countdown-unit">min</span></div>
-        <div class="countdown-sep">:</div>
-        <div class="countdown-item"><span class="countdown-number" id="seconds">--</span><span class="countdown-unit">sec</span></div>
+        <p class="countdown-label">Il arrive dans</p>
+        <div class="countdown" id="countdown">
+          <div class="countdown-item"><span class="countdown-number" id="cd-days">--</span><span class="countdown-unit">jours</span></div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item"><span class="countdown-number" id="cd-hours">--</span><span class="countdown-unit">heures</span></div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item"><span class="countdown-number" id="cd-mins">--</span><span class="countdown-unit">minutes</span></div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item"><span class="countdown-number" id="cd-secs">--</span><span class="countdown-unit">secondes</span></div>
+        </div>
+        <p class="countdown-date">7 août 2026</p>
       </div>
+      <a href="#gifts" class="hero-cta"><span>Voir la liste</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg></a>
     </div>
+    <div class="hero-shape hero-shape-1">ⵣ</div>
+    <div class="hero-shape hero-shape-2">🌿</div>
+    <div class="hero-shape hero-shape-3">✦</div>
+    <div class="hero-shape hero-shape-4">ⵣ</div>
   </section>
-  <section class="message-section">
-    <div class="container"><div class="message-card"><p class="message-text">Nous attendons notre petit prince avec impatience !</p><p class="message-sub">Votre présence et vos cadeaux sont le plus beau des bonheurs 💙</p></div></div>
+  <section class="progress-section" id="progress-section">
+    <div class="container">
+      <div class="progress-header">
+        <h2 class="progress-title">🎁 Avancement de la liste</h2>
+        <span class="progress-count" id="progress-count">0 / 0 cadeaux réservés</span>
+      </div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
+      <p class="progress-percent" id="progress-percent">0%</p>
+    </div>
   </section>
   <section class="gifts-section" id="gifts">
     <div class="container">
-      <div class="section-header"><h2>Notre liste de naissance</h2><p class="section-sub">Cliquez sur un cadeau pour le réserver</p></div>
-      <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div><span class="progress-text" id="progress-text">0 cadeau réservé</span></div>
-      <div class="filter-tabs" id="filter-tabs"><button class="filter-tab active" data-cat="all">🎁 Tous</button></div>
-      <div class="gifts-grid" id="gifts-grid"><div class="loading-state"><div class="spinner"></div><p>Chargement…</p></div></div>
+      <div class="section-header">
+        <h2 class="section-title">Notre liste de naissance</h2>
+        <p class="section-subtitle">Chaque cadeau compte pour accueillir notre petit garçon dans les meilleures conditions 💙</p>
+      </div>
+      <div class="filters" role="tablist" aria-label="Filtrer par catégorie">
+        <button class="filter-btn active" data-cat="all" role="tab" aria-selected="true">Tout voir</button>
+        <button class="filter-btn" data-cat="chambre" role="tab" aria-selected="false">🛏 Chambre</button>
+        <button class="filter-btn" data-cat="mobilite" role="tab" aria-selected="false">🚗 Mobilité</button>
+        <button class="filter-btn" data-cat="bain" role="tab" aria-selected="false">🛁 Bain</button>
+        <button class="filter-btn" data-cat="repas" role="tab" aria-selected="false">🍼 Repas</button>
+        <button class="filter-btn" data-cat="eveil" role="tab" aria-selected="false">🎨 Éveil</button>
+        <button class="filter-btn" data-cat="sante" role="tab" aria-selected="false">💊 Santé</button>
+        <button class="filter-btn" data-cat="vetements" role="tab" aria-selected="false">👕 Vêtements</button>
+      </div>
+      <div class="gifts-grid" id="gifts-grid">
+        <div class="loading-state"><div class="spinner"></div><p>Chargement des cadeaux…</p></div>
+      </div>
     </div>
   </section>
   <section class="guestbook-section" id="guestbook">
     <div class="container">
-      <div class="section-header"><h2>Livre d'or 💌</h2><p class="section-sub">Laissez-nous un petit mot</p></div>
-      <form class="guestbook-form" id="guestbook-form">
-        <input type="text" id="guest-name" placeholder="Votre prénom" required maxlength="50">
-        <textarea id="guest-message" placeholder="Votre message…" rows="3" required maxlength="300"></textarea>
-        <button type="submit" class="btn-primary">Envoyer 💝</button>
+      <div class="section-header">
+        <h2 class="section-title">📖 Livre d'or</h2>
+        <p class="section-subtitle">Laissez-nous un mot doux pour accueillir notre bébé</p>
+      </div>
+      <form class="guestbook-form" id="guestbook-form" novalidate>
+        <div class="form-row">
+          <div class="form-group"><label for="gb-name">Votre prénom *</label><input type="text" id="gb-name" placeholder="Prénom" maxlength="50" required></div>
+          <div class="form-group"><label for="gb-relation">Lien avec le bébé</label><input type="text" id="gb-relation" placeholder="ex: Tante, Ami(e)…" maxlength="30"></div>
+        </div>
+        <div class="form-group">
+          <label for="gb-message">Votre message *</label>
+          <textarea id="gb-message" placeholder="Un mot doux pour le bébé…" maxlength="300" required rows="4"></textarea>
+          <span class="char-count"><span id="char-current">0</span>/300</span>
+        </div>
+        <button type="submit" class="btn-primary">Laisser un message 💌</button>
       </form>
       <div class="guestbook-list" id="guestbook-list"></div>
     </div>
   </section>
-  <footer class="footer"><div class="container"><p>Fait avec 💙 pour notre petit prince</p><span class="footer-logo" id="footer-logo" title="">ⵣ</span></div></footer>
-  <div class="modal-overlay" id="modal-overlay">
-    <div class="modal" id="res-modal"><button class="modal-close" onclick="closeModal()">&times;</button><div class="modal-gift-preview" id="modal-preview"></div><h3>Réserver ce cadeau</h3><form id="res-form"><div class="form-group"><label>Votre prénom *</label><input type="text" id="res-name" required placeholder="Marie"></div><div class="form-group"><label>Message (optionnel)</label><textarea id="res-msg" rows="2" placeholder="Avec tout notre amour !"></textarea></div><button type="submit" class="btn-primary">Confirmer 🎁</button></form></div>
-    <div class="modal modal-success" id="success-modal"><div class="success-icon">🎉</div><h3>Merci beaucoup !</h3><p>Votre réservation est confirmée 💙</p></div>
+  <footer class="footer">
+    <div class="footer-symbol" id="footer-symbol" aria-label="Logo Kabyle" title="Triple-clic pour admin">ⵣ</div>
+    <p class="footer-text">Fait avec ❤️ pour notre petit garçon</p>
+    <p class="footer-sub">Sofiane &amp; Katia · 2026</p>
+  </footer>
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <button class="modal-close" id="modal-close" aria-label="Fermer">✕</button>
+      <div class="modal-gift-img-wrap"><img id="modal-img" src="" alt="" loading="lazy"></div>
+      <div class="modal-body">
+        <span class="modal-category" id="modal-category"></span>
+        <h3 class="modal-title" id="modal-title"></h3>
+        <p class="modal-price" id="modal-price"></p>
+        <a class="modal-link" id="modal-link" href="#" target="_blank" rel="noopener">Voir le produit →</a>
+        <div class="modal-reserved-badge" id="modal-reserved-badge" style="display:none">✅ Déjà réservé par <strong id="modal-reserved-by"></strong></div>
+        <form class="modal-form" id="modal-form">
+          <input type="hidden" id="modal-gift-id">
+          <div class="form-group"><label for="res-name">Votre prénom *</label><input type="text" id="res-name" placeholder="Prénom" maxlength="50" required></div>
+          <div class="form-group"><label for="res-message">Message (optionnel)</label><input type="text" id="res-message" placeholder="Un petit mot…" maxlength="100"></div>
+          <button type="submit" class="btn-primary" id="modal-submit-btn">Réserver ce cadeau 🎁</button>
+        </form>
+      </div>
+    </div>
   </div>
-  <div class="toast" id="toast"></div>
-  <script src="/js/app.js"></script>
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+  <button class="back-to-top" id="back-to-top" aria-label="Retour en haut">↑</button>
+  <script src="js/app.js" type="module"></script>
 </body>
 </html>
