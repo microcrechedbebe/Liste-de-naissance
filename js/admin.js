@@ -1,20 +1,125 @@
-/* admin.js */
-'use strict';
-let TOKEN=sessionStorage.getItem('ln_admin_token')||'',gifts=[],reservations={},categories=[],editingId=null,scrapedData={};
-document.getElementById('login-form').addEventListener('submit',async e=>{e.preventDefault();const pwd=document.getElementById('password-input').value;const r=await fetch('/api/gifts',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+pwd},body:JSON.stringify({name:'__test__',category:'autre'})});if(r.status===401){document.getElementById('login-error').textContent='Mot de passe incorrect';return;}if(r.ok){const d=await r.json();await fetch('/api/gifts?id='+d.gift.id,{method:'DELETE',headers:{'Authorization':'Bearer '+pwd}});}TOKEN=pwd;sessionStorage.setItem('ln_admin_token',TOKEN);showApp();});
-function showApp(){document.getElementById('login-screen').style.display='none';document.getElementById('admin-app').style.display='block';loadAll();}
-function logout(){sessionStorage.removeItem('ln_admin_token');TOKEN='';document.getElementById('admin-app').style.display='none';document.getElementById('login-screen').style.display='flex';}
-if(TOKEN)showApp();
-async function loadAll(){const[gRes,rRes]=await Promise.all([fetch('/api/gifts'),fetch('/api/reservations')]);const g=await gRes.json();const r=await rRes.json();gifts=g.gifts||[];categories=g.categories||[];reservations=r.reservations||{};updateStats();renderAdminGifts();renderReservations();}
-function updateStats(){const r=Object.keys(reservations).filter(id=>gifts.find(g=>g.id===id));const a=r.reduce((s,id)=>{const g=gifts.find(x=>x.id===id);return s+(g?.price||0);},0);document.getElementById('stat-total').textContent=gifts.length;document.getElementById('stat-reserved').textContent=r.length;document.getElementById('stat-amount').textContent=a.toFixed(0)+'€';document.getElementById('stat-pct').textContent=gifts.length?Math.round((r.length/gifts.length)*100)+'%':'0%';document.getElementById('gifts-count').textContent=gifts.length;document.getElementById('res-count').textContent=r.length;}
-async function fetchProduct(){const url=document.getElementById('product-url').value.trim();if(!url)return;document.getElementById('fetch-label').style.display='none';document.getElementById('fetch-spinner').style.display='inline-block';document.getElementById('btn-fetch').disabled=true;try{const r=await fetch('/api/scrape?url='+encodeURIComponent(url));const data=await r.json();scrapedData=data;document.getElementById('gift-name').value=data.name||'';document.getElementById('gift-price').value=data.price||'';document.getElementById('gift-image').value=data.image||'';const p=document.getElementById('product-preview');p.innerHTML=`<div class="preview-card">${data.image?`<img src="${esc(data.image)}" alt="preview" onerror="this.style.display='none'">`:'<div class="preview-no-img">📦</div>'}<div class="preview-info"><p class="preview-name">${esc(data.name||'Nom non trouvé')}</p><p class="preview-price">${data.price?data.price.toFixed(2)+' €':'Prix non trouvé'}</p><a href="${esc(url)}" target="_blank" class="preview-link">Voir le produit ↗</a>${!data.success?'<p class="preview-warn">⚠️ Complétez manuellement.</p>':''}</div></div>`;document.getElementById('step-form').style.display='block';}catch(err){showToast('Erreur lors du scraping.','error');document.getElementById('step-form').style.display='block';}finally{document.getElementById('fetch-label').style.display='inline';document.getElementById('fetch-spinner').style.display='none';document.getElementById('btn-fetch').disabled=false;}}
-async function saveGift(){const name=document.getElementById('gift-name').value.trim();const price=document.getElementById('gift-price').value;const category=document.getElementById('gift-category').value;const note=document.getElementById('gift-note').value.trim();const image=document.getElementById('gift-image').value.trim();const url=document.getElementById('product-url').value.trim();if(!name||!category){showToast('Nom et catégorie requis','error');return;}const payload={name,price:price||null,category,note:note||null,image:image||null,url:url||null};const method=editingId?'PUT':'POST';if(editingId)payload.id=editingId;const r=await fetch('/api/gifts',{method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify(payload)});if(r.ok){showToast(editingId?'Cadeau modifié ✓':'Cadeau ajouté ✓');resetForm();await loadAll();}else{showToast('Erreur lors de la sauvegarde','error');}}
-function resetForm(){editingId=null;scrapedData={};document.getElementById('product-url').value='';document.getElementById('gift-name').value='';document.getElementById('gift-price').value='';document.getElementById('gift-category').value='';document.getElementById('gift-note').value='';document.getElementById('gift-image').value='';document.getElementById('product-preview').innerHTML='';document.getElementById('step-form').style.display='none';}
-function renderAdminGifts(){const cat=document.getElementById('admin-cat-filter').value;const f=cat==='all'?gifts:gifts.filter(g=>g.category===cat);const el=document.getElementById('admin-gifts-list');if(!f.length){el.innerHTML='<p class="empty-state">Aucun cadeau.</p>';return;}el.innerHTML=f.map(g=>{const r=reservations[g.id];const c=categories.find(x=>x.id===g.category)||{};return`<div class="admin-gift-row${r?' is-reserved':''}"><div class="agr-img">${g.image?`<img src="${esc(g.image)}" alt="" onerror="this.style.display='none'">`:`<div class="agr-emoji">${c.i||'🎁'}</div>`}</div><div class="agr-info"><p class="agr-name">${esc(g.name)}</p><p class="agr-meta"><span class="tag">${c.i||''} ${c.n||g.category}</span>${g.price?`<span class="tag">${g.price.toFixed(2)} €</span>`:''}${g.note?`<span class="tag note">${esc(g.note)}</span>`:''}${r?`<span class="tag reserved">✅ Réservé par ${esc(r.name)}</span>`:''}</p>${g.url?`<a class="agr-link" href="${esc(g.url)}" target="_blank">Voir le produit ↗</a>`:''}</div><div class="agr-actions"><button class="btn-icon" onclick="editGift('${g.id}')" title="Modifier">✏️</button>${r?`<button class="btn-icon" onclick="cancelReservation('${g.id}')" title="Annuler">🔓</button>`:''}<button class="btn-icon danger" onclick="deleteGift('${g.id}')" title="Supprimer">🗑️</button></div></div>`;}).join('');}
-function editGift(id){const g=gifts.find(x=>x.id===id);if(!g)return;editingId=id;document.getElementById('product-url').value=g.url||'';document.getElementById('gift-name').value=g.name;document.getElementById('gift-price').value=g.price||'';document.getElementById('gift-category').value=g.category;document.getElementById('gift-note').value=g.note||'';document.getElementById('gift-image').value=g.image||'';if(g.image){document.getElementById('product-preview').innerHTML=`<div class="preview-card"><img src="${esc(g.image)}" alt=""><div class="preview-info"><p class="preview-name">${esc(g.name)}</p></div></div>`;}document.getElementById('step-form').style.display='block';document.getElementById('add-card').scrollIntoView({behavior:'smooth'});}
-async function deleteGift(id){if(!confirm('Supprimer ce cadeau ?'))return;const r=await fetch('/api/gifts?id='+id,{method:'DELETE',headers:{'Authorization':'Bearer '+TOKEN}});if(r.ok){showToast('Cadeau supprimé');await loadAll();}else{showToast('Erreur','error');}}
-async function cancelReservation(itemId){if(!confirm('Annuler cette réservation ?'))return;const r=await fetch('/api/reservations?itemId='+itemId,{method:'DELETE',headers:{'Authorization':'Bearer '+TOKEN}});if(r.ok){showToast('Réservation annulée');await loadAll();}else{showToast('Erreur','error');}}
-function renderReservations(){const el=document.getElementById('reservations-list');const r=Object.entries(reservations).filter(([id])=>gifts.find(g=>g.id===id));if(!r.length){el.innerHTML='<p class="empty-state">Aucune réservation.</p>';return;}el.innerHTML=r.map(([id,res])=>{const g=gifts.find(x=>x.id===id);return`<div class="res-row"><div class="res-info"><p class="res-gift">${g?esc(g.name):id}</p><p class="res-meta">Par <strong>${esc(res.name)}</strong>${res.message?` — "${esc(res.message)}"`:''}</p><p class="res-date">${new Date(res.reservedAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</p></div><div class="res-price">${g?.price?g.price.toFixed(2)+' €':''}</div><button class="btn-icon danger" onclick="cancelReservation('${id}')" title="Annuler">🔓</button></div>`;}).join('');}
-function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type==='error'?'error':'');setTimeout(()=>t.classList.remove('show'),3000);}
-function esc(s){const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
-window.fetchProduct=fetchProduct;window.saveGift=saveGift;window.resetForm=resetForm;window.editGift=editGift;window.deleteGift=deleteGift;window.cancelReservation=cancelReservation;window.renderAdminGifts=renderAdminGifts;window.logout=logout;
+// admin.js v2.0
+const $=(sel)=>document.querySelector(sel);
+const $$=(sel)=>document.querySelectorAll(sel);
+const esc=(str)=>{const d=document.createElement('div');d.textContent=String(str||'');return d.innerHTML};
+let adminToken='',allGifts=[],allReservations=[];
+function showToast(msg,type='default',duration=3500){const t=$('#toast');t.textContent=msg;t.className=`toast ${type} show`;clearTimeout(t._timer);t._timer=setTimeout(()=>{t.className='toast'},duration)}
+$('#login-form').addEventListener('submit',async(e)=>{
+  e.preventDefault();const pwd=$('#admin-password').value;
+  const btn=e.target.querySelector('button');btn.disabled=true;btn.textContent='Connexion…';
+  try{
+    const res=await fetch('/api/gifts',{headers:{'Authorization':`Bearer ${pwd}`}});
+    if(res.status===401)throw new Error('Mot de passe incorrect');
+    adminToken=pwd;sessionStorage.setItem('adminToken',pwd);showDashboard();
+  }catch(err){
+    $('#login-error').style.display='block';$('#login-error').textContent=`❌ ${err.message}`;
+    btn.disabled=false;btn.textContent='Connexion';
+  }
+});
+function showDashboard(){$('#login-screen').style.display='none';$('#dashboard').style.display='block';loadAll()}
+$('#logout-btn').addEventListener('click',()=>{
+  sessionStorage.removeItem('adminToken');adminToken='';
+  $('#login-screen').style.display='flex';$('#dashboard').style.display='none';$('#admin-password').value='';
+});
+async function loadAll(){
+  try{
+    const[gRes,rRes]=await Promise.all([fetch('/api/gifts'),fetch('/api/reservations')]);
+    allGifts=await gRes.json();allReservations=await rRes.json();
+    updateStats();renderGiftsTable();renderReservations();
+  }catch(err){showToast('Erreur de chargement','error')}
+}
+function updateStats(){
+  const total=allGifts.length,reserved=allReservations.length;
+  const pct=total>0?Math.round((reserved/total)*100):0;
+  const totalValue=allGifts.reduce((s,g)=>s+(Number(g.price)||0),0);
+  $('#stat-total').textContent=total;$('#stat-reserved').textContent=reserved;
+  $('#stat-pct').textContent=`${pct}%`;$('#stat-value').textContent=`${totalValue.toFixed(0)} €`;
+}
+function renderGiftsTable(filter=''){
+  const tbody=$('#gifts-tbody');
+  const filtered=filter?allGifts.filter(g=>(g.name||'').toLowerCase().includes(filter.toLowerCase())):allGifts;
+  if(!filtered.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:#aaa">Aucun cadeau</td></tr>';return}
+  tbody.innerHTML=filtered.map(g=>{
+    const res=allReservations.find(r=>r.giftId===g.id);
+    const imgSrc=esc(g.image||'');const name=esc(g.name||'');const cat=esc(g.category||'');const price=g.price?`${g.price} €`:'—';
+    return `<tr>
+      <td>${imgSrc?`<img src="${imgSrc}" alt="${name}" class="table-img" onerror="this.style.display='none'">`:'<span class="table-img-placeholder">🎁</span>'}</td>
+      <td><div class="table-name">${name}</div>${g.url?`<a href="${esc(g.url)}" target="_blank" rel="noopener" class="table-link">Voir →</a>`:''}</td>
+      <td><span class="table-cat">${cat}</span></td>
+      <td class="table-price">${price}</td>
+      <td>${res?`<span class="badge badge-reserved">✅ ${esc(res.name)}</span>`:'<span class="badge badge-free">Disponible</span>'}</td>
+      <td><div class="table-actions">${res?`<button class="btn-sm btn-danger" onclick="cancelReservation('${esc(res.id)}')">Annuler rés.</button>`:''}<button class="btn-sm btn-danger" onclick="deleteGift('${esc(g.id)}')">Supprimer</button></div></td>
+    </tr>`;
+  }).join('');
+}
+$('#search-gifts').addEventListener('input',(e)=>{renderGiftsTable(e.target.value)});
+$('#scrape-btn').addEventListener('click',async()=>{
+  const url=$('#scrape-url').value.trim();if(!url)return showToast('Entrez une URL','error');
+  const btn=$('#scrape-btn');btn.disabled=true;btn.textContent='⏳ Scraping…';
+  try{
+    const res=await fetch(`/api/scrape?url=${encodeURIComponent(url)}`,{headers:{'Authorization':`Bearer ${adminToken}`}});
+    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error||`Erreur ${res.status}`)}
+    const data=await res.json();
+    if(data.title)$('#gift-name').value=data.title;
+    if(data.price)$('#gift-price').value=data.price;
+    if(data.image){$('#gift-image').value=data.image;$('#preview-img').src=data.image;$('#gift-preview').style.display='block'}
+    if(data.url)$('#gift-url').value=data.url;
+    if(data.category)$('#gift-category').value=data.category;
+    showToast('✅ Informations récupérées !','success');
+  }catch(err){showToast(`❌ ${err.message}`,'error')}
+  finally{btn.disabled=false;btn.textContent='🔍 Scraper'}
+});
+$('#gift-image').addEventListener('input',(e)=>{
+  const url=e.target.value.trim();
+  if(url){$('#preview-img').src=url;$('#gift-preview').style.display='block'}else{$('#gift-preview').style.display='none'}
+});
+$('#add-gift-form').addEventListener('submit',async(e)=>{
+  e.preventDefault();const btn=e.target.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='⏳ Ajout en cours…';
+  const body={name:$('#gift-name').value.trim(),price:$('#gift-price').value?Number($('#gift-price').value):null,category:$('#gift-category').value,image:$('#gift-image').value.trim(),url:$('#gift-url').value.trim()};
+  try{
+    const res=await fetch('/api/gifts',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminToken}`},body:JSON.stringify(body)});
+    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error||`Erreur ${res.status}`)}
+    const g=await res.json();allGifts.push(g);updateStats();renderGiftsTable();
+    e.target.reset();$('#gift-preview').style.display='none';$('#scrape-url').value='';
+    showToast('🎁 Cadeau ajouté !','success');
+  }catch(err){showToast(`❌ ${err.message}`,'error')}
+  finally{btn.disabled=false;btn.textContent='Ajouter le cadeau ✨'}
+});
+window.deleteGift=async(id)=>{
+  if(!confirm('Supprimer ce cadeau ? Cette action est irréversible.'))return;
+  try{
+    const res=await fetch(`/api/gifts?id=${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${adminToken}`}});
+    if(!res.ok)throw new Error('Erreur suppression');
+    allGifts=allGifts.filter(g=>g.id!==id);updateStats();renderGiftsTable();showToast('🗑 Cadeau supprimé');
+  }catch(err){showToast(`❌ ${err.message}`,'error')}
+};
+window.cancelReservation=async(id)=>{
+  if(!confirm('Annuler cette réservation ?'))return;
+  try{
+    const res=await fetch(`/api/reservations?id=${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${adminToken}`}});
+    if(!res.ok)throw new Error('Erreur annulation');
+    allReservations=allReservations.filter(r=>r.id!==id);updateStats();renderGiftsTable();renderReservations();showToast('✅ Réservation annulée');
+  }catch(err){showToast(`❌ ${err.message}`,'error')}
+};
+function renderReservations(){
+  const list=$('#reservations-list');
+  if(!allReservations.length){list.innerHTML="<p style='color:#aaa;text-align:center;padding:24px'>Aucune réservation pour l'instant</p>";return}
+  list.innerHTML=allReservations.map(r=>{
+    const gift=allGifts.find(g=>g.id===r.giftId);
+    return `<div class="reservation-card">
+      <div class="reservation-info">
+        <strong>${esc(r.name)}</strong>
+        <span>a réservé <em>${esc(gift?.name||'un cadeau')}</em></span>
+        ${r.message?`<span class="reservation-msg">"${esc(r.message)}"</span>`:''}
+      </div>
+      <div class="reservation-meta">
+        <span class="reservation-date">${new Date(r.createdAt).toLocaleDateString('fr-FR')}</span>
+        <button class="btn-sm btn-danger" onclick="cancelReservation('${esc(r.id)}')">Annuler</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const saved=sessionStorage.getItem('adminToken');
+  if(saved){adminToken=saved;showDashboard()}
+});
