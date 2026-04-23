@@ -9,39 +9,40 @@ function setCors(res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
-
 function auth(req) {
-  const token = req.headers['authorization']?.replace('Bearer ', '');
-  return token === process.env.ADMIN_PASSWORD;
+  return req.headers['authorization']?.replace('Bearer ', '') === process.env.ADMIN_PASSWORD;
 }
 
 async function readData() {
-  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_PATH}`, {
-    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
-  });
+  const res = await fetch(
+    `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_PATH}`,
+    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' } }
+  );
   if (res.status === 404) return { data: [], sha: null };
   const json = await res.json();
-  const content = JSON.parse(Buffer.from(json.content, 'base64').toString('utf-8'));
-  return { data: content, sha: json.sha };
+  // Nettoyer le base64 (GitHub ajoute des \n)
+  const clean = json.content.replace(/\n/g, '');
+  const decoded = Buffer.from(clean, 'base64').toString('utf-8');
+  return { data: JSON.parse(decoded), sha: json.sha };
 }
 
 async function writeData(data, sha) {
-  const content = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
-  const body = { message: 'Update gifts data', content, committer: { name: 'Liste Naissance Bot', email: 'bot@naissance.fr' } };
+  const content = Buffer.from(JSON.stringify(data, null, 2), 'utf-8').toString('base64');
+  const body = { message: 'Update gifts', content, committer: { name: 'Liste Bot', email: 'bot@liste.fr' } };
   if (sha) body.sha = sha;
-  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_PATH}`, {
-    method: 'PUT',
-    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-    body: JSON.stringify(body)
-  });
-  return res.ok;
+  const res = await fetch(
+    `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_PATH}`,
+    { method: 'PUT', headers: { Authorization: `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' }, body: JSON.stringify(body) }
+  );
+  if (!res.ok) { const err = await res.json(); throw new Error(err.message || 'GitHub write error'); }
+  return true;
 }
 
 function validateGift(body) {
   const { name, price, category, image, url } = body || {};
-  if (!name || typeof name !== 'string' || name.trim().length < 2) return { valid: false, error: 'Nom invalide (min 2 caractères)' };
-  if (price !== undefined && price !== null && (isNaN(Number(price)) || Number(price) < 0)) return { valid: false, error: 'Prix invalide' };
-  return { valid: true, data: { name: name.trim().slice(0, 200), price: (price !== undefined && price !== null) ? Number(price) : null, category: (category || 'autre').trim().slice(0, 50), image: (image || '').trim().slice(0, 500), url: (url || '').trim().slice(0, 500) } };
+  if (!name || typeof name !== 'string' || name.trim().length < 2) return { valid: false, error: 'Nom invalide' };
+  if (price != null && (isNaN(Number(price)) || Number(price) < 0)) return { valid: false, error: 'Prix invalide' };
+  return { valid: true, data: { name: name.trim().slice(0,200), price: price != null ? Number(price) : null, category: (category||'autre').trim().slice(0,50), image: (image||'').trim().slice(0,500), url: (url||'').trim().slice(0,500) } };
 }
 
 export default async function handler(req, res) {
@@ -57,10 +58,10 @@ export default async function handler(req, res) {
       const v = validateGift(req.body);
       if (!v.valid) return res.status(400).json({ error: v.error });
       const { data, sha } = await readData();
-      const newGift = { id: Date.now().toString(), ...v.data, createdAt: new Date().toISOString() };
-      data.push(newGift);
+      const gift = { id: Date.now().toString(), ...v.data, createdAt: new Date().toISOString() };
+      data.push(gift);
       await writeData(data, sha);
-      return res.status(201).json(newGift);
+      return res.status(201).json(gift);
     }
     if (req.method === 'PUT') {
       if (!auth(req)) return res.status(401).json({ error: 'Non autorisé' });
@@ -87,7 +88,7 @@ export default async function handler(req, res) {
     }
     return res.status(405).json({ error: 'Méthode non autorisée' });
   } catch (err) {
-    console.error('API gifts error:', err);
+    console.error('gifts error:', err);
     return res.status(500).json({ error: err.message || 'Erreur serveur' });
   }
 }
